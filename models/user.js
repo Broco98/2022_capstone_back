@@ -34,6 +34,6 @@ module.exports = class User extends Sequelize.Model{
         db.User.hasMany(db.WorkSpace, {
             foreignKey: 'hostId',
             sourceKey: 'id',
-        }); // 1:N관계, 한명의 유저는 여러개의 WS를 갖는다.
+        });
     }
 }

@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="workspace-group">
+    {% for workspace in workspacegroups %}
+        <div class="workspace-group-info">hostWorkSpaceId : {{ workspace.subWorkSpaceId }}</div>
+        <div class="workspace-group-info">subWorkSpaceId : {{ workspace.hostWorkSpaceId }}</div>
+        <div class="workspace-group-info">subWorkSpaceId : {{ workspace.subUserId }}</div>
+    {% endfor %}}
+</div>
+{% endblock %}

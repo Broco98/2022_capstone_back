@@ -22,5 +22,13 @@
         <button id="login" type="submit" class="btn">로그인</button>
     </form>
     {% endif %}
+    {% for workspace in workspaces%}
+    <div class="workspace">
+        <div class="workspace-info">workspaceid : {{ workspace.id }}</div>
+        <div class="workspace-info">hostid : {{ workspace.hostId }}</div>
+        <a id="workspace-in" href="workspace/{{workspace.id}}">입장</a>
+    </div>
+    {% endfor %}
+
 </div>
 {% endblock %}

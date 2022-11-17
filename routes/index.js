@@ -1,5 +1,6 @@
 const express = require('express');
 const { User, WorkSpace } = require('../models');
+const {isLoggedIn, isNotLoggedIn} = require("./middlewares");
 
 
 const router = express.Router();
@@ -16,8 +17,23 @@ router.get('/join', (req, res, next) => {
 })
 
 // 메인페이지 - 기본페이지
-router.get('/', (req, res, next) => {
-    res.render('main', { title: 'Capstone' });
+router.get('/', async (req, res, next) => {
+    try{
+        if(req.user) {
+            const workspaces = await WorkSpace.findAll({
+                where: {
+                    hostId: req.user.id,
+                }
+            });
+            res.render('main', {title: 'Capstone', workspaces: workspaces});
+        }
+        else res.render('main', {title: 'Capstone'});
+    } catch(error){
+        console.error(error);
+        next(error);
+    }
 })
+
+
 
 module.exports = router;
