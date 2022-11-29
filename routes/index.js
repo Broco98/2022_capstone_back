@@ -12,7 +12,7 @@ router.use((req, res, next) => {
 })
 
 // 회원가입
-router.get('/join', (req, res, next) => {
+router.get('/join', isNotLoggedIn, (req, res, next) => {
     res.render('join', { title: '회원가입' });
 })
 
@@ -33,7 +33,5 @@ router.get('/', async (req, res, next) => {
         next(error);
     }
 })
-
-
 
 module.exports = router;

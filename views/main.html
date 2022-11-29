@@ -5,7 +5,7 @@
     {% if user and user.id %}
     <div class="user-name">{{'안녕하세요! ' + user.nick + '님'}}</div>
     <a id="logout" href="/auth/logout" class="btn">로그아웃</a><br/>
-    <form id="workspace-form" action="/workspace" method="post">
+    <form id="workspace-form" action="/workspace/new" method="post">
         <button id="make-workspace" type="submit" class="btn">new workspace</button>
     </form>
     {% else %}

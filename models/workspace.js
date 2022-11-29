@@ -4,6 +4,13 @@ const Sequelize = require('sequelize');
 module.exports = class WorkSpace extends Sequelize.Model{
     static init(sequelize){
         return super.init({
+                lastEntryNumber: {
+                    type: Sequelize.INTEGER,
+                    allowNull: true,
+                },
+                position: {
+                    type: Sequelize.TEXT,
+                }
             },
             {
                 sequelize,
@@ -23,12 +30,12 @@ module.exports = class WorkSpace extends Sequelize.Model{
         }); // User에 1:N관계
         db.WorkSpace.belongsToMany(db.WorkSpace, {
             foreignKey: 'hostWorkSpaceId', // 외래키 이름
-            as: 'SubWorkSpaceId', // followingId랑 반대로 적어야함 ex, 연예인의 팔로워를 가져오려면, followingId를 알아야함.
+            as: 'hostWorkSpaceId', // followingId랑 반대로 적어야함 ex, 연예인의 팔로워를 가져오려면, followingId를 알아야함.
             through: 'WorkSpaceGroup',
         });
         db.WorkSpace.belongsToMany(db.WorkSpace, {
             foreignKey: 'subWorkSpaceId',
-            as: 'HostWorkSpaceId', // 내가 팔로윙한 사람을 가져오려면, 내 id, 즉 followerId가 필요
+            as: 'subWorkSpaceId', // 내가 팔로윙한 사람을 가져오려면, 내 id, 즉 followerId가 필요
             through: 'WorkSpaceGroup',
         });
     }

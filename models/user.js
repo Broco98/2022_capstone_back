@@ -4,20 +4,20 @@ const Sequelize = require('sequelize');
 module.exports = class User extends Sequelize.Model{
     static init(sequelize){
         return super.init({
-                // id PK생략
-                email: {
-                    type: Sequelize.STRING(40),
-                    allowNull: false,
-                    unique: true,
-                },
-                nick: {
-                    type: Sequelize.STRING(15),
-                    allowNull: false,
-                },
-                password: {
-                    type: Sequelize.STRING(100), //hash화 되면 길이가 늘어나니까 넉넉하게
-                    allowNull: false, // SNS로 로그인하면 없을 수 있다.
-                },
+            // id PK생략
+            email: {
+                type: Sequelize.STRING(40),
+                allowNull: false,
+                unique: true,
+            },
+            nick: {
+                type: Sequelize.STRING(15),
+                allowNull: false,
+            },
+            password: {
+                type: Sequelize.STRING(100), //hash화 되면 길이가 늘어나니까 넉넉하게
+                allowNull: false, // SNS로 로그인하면 없을 수 있다.
+            },
             },
             {
                 sequelize,

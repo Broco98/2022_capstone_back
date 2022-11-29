@@ -73,7 +73,6 @@ app.use((err, req, res) => {
 });
 
 // 몇번 port에서 실행할지 지정
-app.listen(app.get('port'), () => {
+const server = app.listen(app.get('port'), () => {
     console.log(app.get('port'), '번 포트에서 대기중');
 });
-

@@ -4,9 +4,10 @@ const Sequelize = require('sequelize');
 module.exports = class WorkSpaceGroup extends Sequelize.Model{
     static init(sequelize){
         return super.init({
-            subUserId: {
+            userId: {
                 type: Sequelize.INTEGER,
-            }
+            },
+
         }, {
                 sequelize,
                 timestamps: true, // 생성일, 수정일 자동생성

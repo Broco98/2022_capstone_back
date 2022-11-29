@@ -6,9 +6,8 @@ const db = require('../models/index');
 const router = express.Router();
 const WorkSpaceGroup = db.sequelize.models.WorkSpaceGroup;
 
-
 // workspace 생성
-router.post('/', isLoggedIn, async (req, res, next) => {
+router.post('/new', isLoggedIn, async (req, res, next) => {
     try{
         const newWorkSpace = await WorkSpace.create({
             hostId: req.user.id,
@@ -17,8 +16,8 @@ router.post('/', isLoggedIn, async (req, res, next) => {
         await WorkSpaceGroup.create({
             hostWorkSpaceId: newWorkSpace.id,
             subWorkSpaceId: newWorkSpace.id,
-            subUserId: req.user.id,
-        })
+            userId: req.user.id,
+        });
         res.redirect('/');
     } catch(error){
         console.error(error);
@@ -38,9 +37,10 @@ router.get('/:host_workspace_id', isLoggedIn, async(req, res, next) => {
         const exWorkSpace = await WorkSpaceGroup.findOne({
             where : {
                 hostWorkSpaceId: req.params.host_workspace_id,
-                subUserId: req.user.id,
+                userId: req.user.id,
             },
         });
+        // 나와 연결된 workspace가 없으면
         if(!exWorkSpace){
             // subworkspace 생성
             const newWorkSpace = await WorkSpace.create({
@@ -50,23 +50,22 @@ router.get('/:host_workspace_id', isLoggedIn, async(req, res, next) => {
             await WorkSpaceGroup.create({
                 hostWorkSpaceId: req.params.host_workspace_id,
                 subWorkSpaceId: newWorkSpace.id,
-                subUserId: req.user.id,
+                userId: req.user.id,
             });
             // 자기 자신과 연결
             await WorkSpaceGroup.create({
                 hostWorkSpaceId: newWorkSpace.id,
                 subWorkSpaceId: newWorkSpace.id,
-                subUserId: req.user.id,
+                userId: req.user.id,
             });
         }
         // host와 연결된 workspace들 반환
-        const workSpaceGroups = WorkSpaceGroup.findAll({
+        const workSpaceGroups = await WorkSpaceGroup.findAll({
             where: {
                 hostWorkSpaceId: req.params.host_workspace_id,
             }
         })
-        console.log(workSpaceGroups);
-        res.render('workspace', { workspacegroups: workSpaceGroups });
+        res.render('workspace', { workspacegroups: workSpaceGroups } );
     } catch(error){
         console.error(error);
         next(error);
