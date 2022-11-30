@@ -6,7 +6,7 @@ const db = require('../models/index');
 const router = express.Router();
 const WorkSpaceGroup = db.sequelize.models.WorkSpaceGroup;
 
-// workspace 생성
+// workspace 생성, 이벤트도 같이 생성해야함!
 router.post('/new', isLoggedIn, async (req, res, next) => {
     try{
         const newWorkSpace = await WorkSpace.create({
@@ -57,6 +57,14 @@ router.get('/:host_workspace_id', isLoggedIn, async(req, res, next) => {
                 hostWorkSpaceId: newWorkSpace.id,
                 subWorkSpaceId: newWorkSpace.id,
                 userId: req.user.id,
+            });
+            // !!! 바뀔 수 있음!
+            //const exHostWorkSpace = await WorkSpace.findOne({ where: {id: req.params.host_workspace_id} });
+            // host와 자기자신 연결
+            await WorkSpaceGroup.create({
+                hostWorkSpaceId: newWorkSpace.id,
+                subWorkSpaceId: req.params.host_workspace_id,
+                userId: exHostWorkSpace.hostId,
             });
         }
         // host와 연결된 workspace들 반환
