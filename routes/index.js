@@ -1,5 +1,5 @@
 const express = require('express');
-const { User, WorkSpace } = require('../models');
+const { User, WorkSpace, WorkSpaceGroup } = require('../models');
 const {isLoggedIn, isNotLoggedIn} = require("./middlewares");
 
 
@@ -20,9 +20,9 @@ router.get('/join', isNotLoggedIn, (req, res, next) => {
 router.get('/', async (req, res, next) => {
     try{
         if(req.user) {
-            const workspaces = await WorkSpace.findAll({
+            const workspaces = await WorkSpaceGroup.findAll({
                 where: {
-                    userId: req.user.id,
+                    subUserId: req.user.id,
                 }
             });
             res.render('main', {title: 'Capstone', workspaces: workspaces});

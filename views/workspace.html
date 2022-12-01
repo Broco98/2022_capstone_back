@@ -2,6 +2,18 @@
 
 {% block content %}
 
+<script src="/socket.io/socket.io.js"></script>
+<script>
+        const socket = io.connect('http://localhost:8002/workspace',{
+                path: '/socket.io',
+                transports: ['websocket'],
+        });
+        socket.on('news', (data) => {
+                console.log(data);
+                socket.emit('reply', '클라 : 서버로 넘기기');
+        });
+</script>
+
 {% for workspace in workSpaceGroups %}
 <div class="workspace-group">
         <div class="workspace-group-info">hostWorkSpaceId : {{ workspace.hostWorkSpaceId }}</div>

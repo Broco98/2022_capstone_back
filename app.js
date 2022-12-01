@@ -6,13 +6,14 @@ const session = require('express-session');
 const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
 const passport = require('passport');
+const webSocket = require('./socket');
 
 dotenv.config(); // dotenv설정은 맨 위에
 
 // router
-const indexRouter = require('./routes/index'); // 메인 router
-const authRouter = require('./routes/auth'); // 회원가입
-const workSpaceRouter = require('./routes/workspace'); // workspace
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const workSpaceRouter = require('./routes/workspace');
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 
@@ -41,7 +42,7 @@ app.use(express.urlencoded({ extended: false })); // form 파싱
 
 app.use(cookieParser(process.env.COOKIE_SECRET)) // cookie-parser, 비밀키는 .env에
 // 세션설정
-app.use(session({
+const sessionMiddleware = session({
     resave: false,
     saveUninitialized: false,
     secret: process.env.COOKIE_SECRET, // 쿠키 암호화
@@ -49,7 +50,8 @@ app.use(session({
         httpOnly: true,
         secure: false,
     }
-}));
+});
+app.use(sessionMiddleware);
 // session 에 종속되므로, express-session 밑에,
 app.use(passport.initialize());
 app.use(passport.session());
@@ -76,3 +78,5 @@ app.use((err, req, res) => {
 const server = app.listen(app.get('port'), () => {
     console.log(app.get('port'), '번 포트에서 대기중');
 });
+
+webSocket(server, app, sessionMiddleware);

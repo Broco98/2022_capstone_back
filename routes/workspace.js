@@ -70,7 +70,7 @@ router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
             }
         })
         req.session.subWorkSpaceId = exWorkSpace.subWorkSpaceId; // 자신의 워크스페이스를 세션에 저장
-        //req.session.save();
+        req.session.save();
         console.log(req.session.subWorkSpaceId);
         res.render('workspace', {workSpaceGroups});
     } catch(error){

@@ -24,9 +24,11 @@
     {% endif %}
     {% for workspace in workspaces%}
     <div class="workspace">
-        <div class="workspace-info">workspaceId : {{ workspace.id }}</div>
-        <div class="workspace-info">userId : {{ workspace.userId }}</div>
-        <a id="workspace-in" href="workspace/{{workspace.id}}">입장</a>
+        <div class="workspace-info">hostWorkSpaceId : {{ workspace.hostWorkSpaceId }}</div>
+        <div class="workspace-info">subWorkSpaceId : {{ workspace.subWorkSpaceId }}</div>
+        <div class="workspace-info">hostUserId : {{ workspace.hostUserId }}</div>
+        <div class="workspace-info">subUserId : {{ workspace.subUserId }}</div>
+        <a id="workspace-in" href="workspace/{{workspace.hostWorkSpaceId}}">입장</a>
     </div>
     {% endfor %}
 

@@ -9,6 +9,7 @@
   "author": "Broco",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.2.0",
     "bcrypt": "^5.1.0",
     "blockly": "^9.1.1",
     "cookie-parser": "^1.4.6",
