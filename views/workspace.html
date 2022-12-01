@@ -2,11 +2,12 @@
 
 {% block content %}
 
-{% for workspace in workspacegroups %}
+{% for workspace in workSpaceGroups %}
 <div class="workspace-group">
         <div class="workspace-group-info">hostWorkSpaceId : {{ workspace.hostWorkSpaceId }}</div>
         <div class="workspace-group-info">subWorkSpaceId : {{ workspace.subWorkSpaceId }}</div>
-        <div class="workspace-group-info">userId : {{ workspace.userId }}</div>
+        <div class="workspace-group-info">hostUserId : {{ workspace.hostUserId }}</div>
+        <div class="workspace-group-info">subUserId : {{ workspace.subUserId }}</div>
 </div>
 {% endfor %}
 {% endblock %}

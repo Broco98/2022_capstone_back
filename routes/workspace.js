@@ -6,17 +6,19 @@ const db = require('../models/index');
 const router = express.Router();
 const WorkSpaceGroup = db.sequelize.models.WorkSpaceGroup;
 
-// workspace 생성, 이벤트도 같이 생성해야함!
+// workspace 생성
 router.post('/new', isLoggedIn, async (req, res, next) => {
     try{
         const newWorkSpace = await WorkSpace.create({
-            hostId: req.user.id,
+            userId: req.user.id,
+            status: 'host',
         });
         // workspace_group도 같이생성
         await WorkSpaceGroup.create({
             hostWorkSpaceId: newWorkSpace.id,
             subWorkSpaceId: newWorkSpace.id,
-            userId: req.user.id,
+            hostUserId: req.user.id,
+            subUserId: req.user.id,
         });
         res.redirect('/');
     } catch(error){
@@ -25,55 +27,52 @@ router.post('/new', isLoggedIn, async (req, res, next) => {
     }
 });
 
-// workspace 입장
-router.get('/:host_workspace_id', isLoggedIn, async(req, res, next) => {
+// workspace 입장, 호스트의 워크스페이스만 입장 가능
+router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
     try{
-        // 입장하려는 host workspace가 존재하는지 탐색
-        const exHostWorkSpace = await WorkSpace.findOne({ where: {id: req.params.host_workspace_id} });
+        // 입장하려는 호스트의 워크스페이스가 존재하는지 탐색
+        const exHostWorkSpace = await WorkSpace.findOne({
+            where: {
+                id: req.params.hostWorkSpaceId,
+                status: 'host',
+            }
+        });
         if(!exHostWorkSpace){
             return res.status(404).send('존재하지 않는 workspace');
         }
-        // 이미 연결된 workspace 탐색
+
+        // 자신이 호스트의 워크스페이스와 연결돼있는지 확인
         const exWorkSpace = await WorkSpaceGroup.findOne({
             where : {
-                hostWorkSpaceId: req.params.host_workspace_id,
-                userId: req.user.id,
+                hostWorkSpaceId: req.params.hostWorkSpaceId,
+                subUserId: req.user.id,
             },
         });
-        // 나와 연결된 workspace가 없으면
-        if(!exWorkSpace){
+
+        // 자신이 호스트의 워크스페이스와 연결이 안돼있는 경우
+        if(!exWorkSpace) {
             // subworkspace 생성
-            const newWorkSpace = await WorkSpace.create({
-                hostId: req.user.id
-            });
-            // 새로운 workspace 연결
-            await WorkSpaceGroup.create({
-                hostWorkSpaceId: req.params.host_workspace_id,
-                subWorkSpaceId: newWorkSpace.id,
+            const newSubWorkSpace = await WorkSpace.create({
                 userId: req.user.id,
+                status: 'sub',
             });
-            // 자기 자신과 연결
+            // 호스트의 워크스페이스와 자신의 서브 워크스페이스를 연결
             await WorkSpaceGroup.create({
-                hostWorkSpaceId: newWorkSpace.id,
-                subWorkSpaceId: newWorkSpace.id,
-                userId: req.user.id,
-            });
-            // !!! 바뀔 수 있음!
-            //const exHostWorkSpace = await WorkSpace.findOne({ where: {id: req.params.host_workspace_id} });
-            // host와 자기자신 연결
-            await WorkSpaceGroup.create({
-                hostWorkSpaceId: newWorkSpace.id,
-                subWorkSpaceId: req.params.host_workspace_id,
-                userId: exHostWorkSpace.hostId,
+                hostWorkSpaceId: req.params.hostWorkSpaceId,
+                subWorkSpaceId: newSubWorkSpace.id,
+                hostUserId: exHostWorkSpace.userId,
+                subUserId: req.user.id,
             });
         }
-        // host와 연결된 workspace들 반환
         const workSpaceGroups = await WorkSpaceGroup.findAll({
             where: {
-                hostWorkSpaceId: req.params.host_workspace_id,
+                hostWorkSpaceId: req.params.hostWorkSpaceId,
             }
         })
-        res.render('workspace', { workspacegroups: workSpaceGroups } );
+        req.session.subWorkSpaceId = exWorkSpace.subWorkSpaceId; // 자신의 워크스페이스를 세션에 저장
+        //req.session.save();
+        console.log(req.session.subWorkSpaceId);
+        res.render('workspace', {workSpaceGroups});
     } catch(error){
         console.error(error);
         next(error);

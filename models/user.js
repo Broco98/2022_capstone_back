@@ -1,10 +1,8 @@
-// User sequelize 모델 -> db의 테이블 즉, 테이블 그 자체라고 생각. 데이터가 담겨있음
 const Sequelize = require('sequelize');
 
 module.exports = class User extends Sequelize.Model{
     static init(sequelize){
         return super.init({
-            // id PK생략
             email: {
                 type: Sequelize.STRING(40),
                 allowNull: false,
@@ -16,7 +14,7 @@ module.exports = class User extends Sequelize.Model{
             },
             password: {
                 type: Sequelize.STRING(100), //hash화 되면 길이가 늘어나니까 넉넉하게
-                allowNull: false, // SNS로 로그인하면 없을 수 있다.
+                allowNull: false,
             },
             },
             {
@@ -32,7 +30,7 @@ module.exports = class User extends Sequelize.Model{
     }
     static associate(db){
         db.User.hasMany(db.WorkSpace, {
-            foreignKey: 'hostId',
+            foreignKey: 'userId',
             sourceKey: 'id',
         });
     }

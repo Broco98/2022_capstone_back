@@ -1,11 +1,10 @@
-// WorkSpace sequelize 모델 -> db의 테이블 즉, 테이블 그 자체라고 생각. 데이터가 담겨있음
 const Sequelize = require('sequelize');
 
 module.exports = class WorkSpace extends Sequelize.Model{
     static init(sequelize){
         return super.init({
             snapshot: {
-                type: Sequelize.BLOB,
+                type: Sequelize.TEXT, // TEXT or BLOB or JSONTYPE 고민중
             },
             lastEntryNumber: {
                 type: Sequelize.INTEGER,
@@ -13,6 +12,9 @@ module.exports = class WorkSpace extends Sequelize.Model{
             },
             position: {
                 type: Sequelize.TEXT,
+            },
+            status: {
+                type: Sequelize.ENUM('host', 'sub'),
             }
         },
         {
@@ -28,17 +30,17 @@ module.exports = class WorkSpace extends Sequelize.Model{
     }
     static associate(db){
         db.WorkSpace.belongsTo(db.User,{
-            foreignKey: 'hostId',
+            foreignKey: 'userId',
             targetKey: 'id',
-        }); // User에 1:N관계
+        });
         db.WorkSpace.belongsToMany(db.WorkSpace, {
             foreignKey: 'hostWorkSpaceId', // 외래키 이름
-            as: 'hostWorkSpaceId', // followingId랑 반대로 적어야함 ex, 연예인의 팔로워를 가져오려면, followingId를 알아야함.
+            as: 'hostWorkSpaceId',
             through: 'WorkSpaceGroup',
         });
         db.WorkSpace.belongsToMany(db.WorkSpace, {
             foreignKey: 'subWorkSpaceId',
-            as: 'subWorkSpaceId', // 내가 팔로윙한 사람을 가져오려면, 내 id, 즉 followerId가 필요
+            as: 'subWorkSpaceId',
             through: 'WorkSpaceGroup',
         });
     }

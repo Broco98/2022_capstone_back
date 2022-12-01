@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
         if(req.user) {
             const workspaces = await WorkSpace.findAll({
                 where: {
-                    hostId: req.user.id,
+                    userId: req.user.id,
                 }
             });
             res.render('main', {title: 'Capstone', workspaces: workspaces});

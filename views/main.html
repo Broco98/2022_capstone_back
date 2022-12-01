@@ -24,8 +24,8 @@
     {% endif %}
     {% for workspace in workspaces%}
     <div class="workspace">
-        <div class="workspace-info">workspaceid : {{ workspace.id }}</div>
-        <div class="workspace-info">hostid : {{ workspace.hostId }}</div>
+        <div class="workspace-info">workspaceId : {{ workspace.id }}</div>
+        <div class="workspace-info">userId : {{ workspace.userId }}</div>
         <a id="workspace-in" href="workspace/{{workspace.id}}">입장</a>
     </div>
     {% endfor %}
