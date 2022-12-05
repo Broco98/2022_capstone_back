@@ -2,24 +2,95 @@
 
 {% block content %}
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-        const socket = io.connect('http://localhost:8002/workspace',{
-                path: '/socket.io',
-                transports: ['websocket'],
-        });
-        socket.on('news', (data) => {
-                console.log(data);
-                socket.emit('reply', '클라 : 서버로 넘기기');
-        });
-</script>
-
 {% for workspace in workSpaceGroups %}
 <div class="workspace-group">
-        <div class="workspace-group-info">hostWorkSpaceId : {{ workspace.hostWorkSpaceId }}</div>
-        <div class="workspace-group-info">subWorkSpaceId : {{ workspace.subWorkSpaceId }}</div>
-        <div class="workspace-group-info">hostUserId : {{ workspace.hostUserId }}</div>
-        <div class="workspace-group-info">subUserId : {{ workspace.subUserId }}</div>
+    <div class="workspace-group-info">hostWorkSpaceId : {{ workspace.hostWorkSpaceId }}</div>
+    <div class="workspace-group-info">subWorkSpaceId : {{ workspace.subWorkSpaceId }}</div>
+    <div class="workspace-group-info">hostUserId : {{ workspace.hostUserId }}</div>
+    <div class="workspace-group-info">subUserId : {{ workspace.subUserId }}</div>
 </div>
 {% endfor %}
+
+
+<a href="/" id="exit-btn">방 나가기</a>
+<fieldset>
+    <div id="chat-list">
+        {% for chat in chats %}
+        {% if chat.userId === 'system' %}
+        <div class="system">
+            <div>{{chat.chat}}</div>
+        </div>
+        {% else %}
+        <div class="user">
+            <div>{{chat.nick}}:</div>
+            <div>{{chat.chat}}</div>
+        </div>
+        {% endif %}}
+        {% endfor %}
+    </div>
+</fieldset>
+
+<form action="/chat" id="chat-form" method="post">
+    <input type="text" id="chat" name="chat">
+    <button type="submit">전송</button>
+</form>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/event-source-polyfill/src/eventsource.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io.connect('http://localhost:8002',{
+        path: '/socket.io',
+    });
+    // 방입장
+    socket.on('join', function (data) {
+        const div = document.createElement('div');
+        div.classList.add('system');
+        const chat = document.createElement('div');
+        div.textContent = data.chat;
+        div.appendChild(chat);
+        document.querySelector('#chat-list').appendChild(div);
+    });
+    // 방퇴장
+    socket.on('exit', function (data) {
+        const div = document.createElement('div');
+        div.classList.add('system');
+        const chat = document.createElement('div');
+        div.textContent = data.chat;
+        div.appendChild(chat);
+        document.querySelector('#chat-list').appendChild(div);
+    });
+    // 채팅입력
+    socket.on('chat', function (data) {
+        const div = document.createElement('div');
+        div.classList.add('user');
+        const name = document.createElement('div');
+        name.textContent = data.nick;
+        div.appendChild(name);
+        const chat = document.createElement('div');
+        chat.textContent = data.chat;
+        div.appendChild(chat);
+        document.querySelector('#chat-list').appendChild(div);
+    });
+    document.querySelector('#chat-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (e.target.chat.value) {
+            axios.post('/workspace/{{hostWorkSpaceId}}/chat', {
+                chat: this.chat.value,
+            })
+                .then(() => {
+                    e.target.chat.value = '';
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
+    });
+
+</script>
+
+
+
+
+
 {% endblock %}

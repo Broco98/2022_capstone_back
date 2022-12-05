@@ -24,7 +24,7 @@
     "passport-local": "^1.0.0",
     "sequelize": "^6.25.5",
     "sequelize-cli": "^6.5.2",
-    "socket.io": "^4.5.4"
+    "socket.io": "^2.5.0"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",

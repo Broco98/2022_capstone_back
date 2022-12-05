@@ -1,6 +1,6 @@
 const express = require('express');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const { User, WorkSpace } = require('../models');
+const { User, WorkSpace, Chat } = require('../models');
 const db = require('../models/index');
 
 const router = express.Router();
@@ -72,8 +72,37 @@ router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
         req.session.subWorkSpaceId = exWorkSpace.subWorkSpaceId; // 자신의 워크스페이스를 세션에 저장
         req.session.save();
         console.log(req.session.subWorkSpaceId);
-        res.render('workspace', {workSpaceGroups});
+
+        // 이전 채팅 불러오기
+        const chats = await Chat.findAll({
+            where: {
+                hostWorkSpaceId: req.params.hostWorkSpaceId
+            }
+        });
+
+        res.render('workspace', {workSpaceGroups, chats});
     } catch(error){
+        console.error(error);
+        next(error);
+    }
+});
+
+// 채팅입력시
+router.post('/room/:hostWorkSpaceId/chat', async (req, res, next) => {
+    try {
+        const findNickFor = await User.findOne({
+            where: {
+                id: req.params.id,
+            }
+        });
+        const chat = await Chat.create({
+            userId: req.params.id,
+            nick: findNickFor.nick,
+            chat: req.body.chat,
+        });
+        req.app.get('io').to(req.params.hostWorkSpaceId).emit('chat', chat);
+        res.send('ok');
+    } catch (error) {
         console.error(error);
         next(error);
     }
