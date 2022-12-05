@@ -18,14 +18,15 @@
         {% for chat in chats %}
         {% if chat.userId === 'system' %}
         <div class="system">
+            <div>#system</div>
             <div>{{chat.chat}}</div>
         </div>
         {% else %}
         <div class="user">
-            <div>{{chat.nick}}:</div>
+            <div>{{chat.nick}}</div>
             <div>{{chat.chat}}</div>
         </div>
-        {% endif %}}
+        {% endif %}
         {% endfor %}
     </div>
 </fieldset>
@@ -60,7 +61,7 @@
         div.appendChild(chat);
         document.querySelector('#chat-list').appendChild(div);
     });
-    // 채팅입력
+    // 채팅입력시 생성
     socket.on('chat', function (data) {
         const div = document.createElement('div');
         div.classList.add('user');
@@ -75,7 +76,7 @@
     document.querySelector('#chat-form').addEventListener('submit', function (e) {
         e.preventDefault();
         if (e.target.chat.value) {
-            axios.post('/workspace/{{hostWorkSpaceId}}/chat', {
+            axios.post('/workspace/{{workSpaceGroups[0].hostWorkSpaceId}}/chat', {
                 chat: this.chat.value,
             })
                 .then(() => {

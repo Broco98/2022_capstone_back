@@ -63,15 +63,18 @@ router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
                 hostUserId: exHostWorkSpace.userId,
                 subUserId: req.user.id,
             });
+            req.session.subWorkSpaceId = newSubWorkSpace.id; // 자신의 워크스페이스를 세션에 저장
+            req.session.userNick = req.user.nick;
+        }
+        else{
+            req.session.subWorkSpaceId = exWorkSpace.subWorkSpaceId; // 자신의 워크스페이스를 세션에 저장
+            req.session.userNick = req.user.nick;
         }
         const workSpaceGroups = await WorkSpaceGroup.findAll({
             where: {
                 hostWorkSpaceId: req.params.hostWorkSpaceId,
             }
-        })
-        req.session.subWorkSpaceId = exWorkSpace.subWorkSpaceId; // 자신의 워크스페이스를 세션에 저장
-        req.session.save();
-        console.log(req.session.subWorkSpaceId);
+        });
 
         // 이전 채팅 불러오기
         const chats = await Chat.findAll({
@@ -79,7 +82,9 @@ router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
                 hostWorkSpaceId: req.params.hostWorkSpaceId
             }
         });
-
+        req.app.get('io').to(req.params.hostWorkSpaceId).emit('join',{
+            chat: `${req.user.nick}님 입장`,
+        });
         res.render('workspace', {workSpaceGroups, chats});
     } catch(error){
         console.error(error);
@@ -87,25 +92,28 @@ router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
     }
 });
 
+
 // 채팅입력시
-router.post('/room/:hostWorkSpaceId/chat', async (req, res, next) => {
+router.post('/:hostWorkSpaceId/chat', async (req, res, next) => {
     try {
         const findNickFor = await User.findOne({
             where: {
-                id: req.params.id,
+                id: req.user.id,
             }
         });
         const chat = await Chat.create({
-            userId: req.params.id,
+            userId: req.user.id,
             nick: findNickFor.nick,
+            hostWorkSpaceId: req.params.hostWorkSpaceId,
             chat: req.body.chat,
         });
-        req.app.get('io').to(req.params.hostWorkSpaceId).emit('chat', chat);
+        req.app.get('io').of('/workspace').to(req.params.hostWorkSpaceId).emit('chat', chat);
         res.send('ok');
     } catch (error) {
         console.error(error);
         next(error);
     }
 });
+
 
 module.exports = router;
