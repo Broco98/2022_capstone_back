@@ -6,7 +6,12 @@
 
 </div>
 <div id="my-workspace">
-
+    <!-- 임시 이벤트 -->
+    <form action="/changeSnapshot" id="change-snapshot" method="post">
+        임시 이벤트 -->
+        <input type="text" id="tEvent" name="tEvent">
+        <button type="submit">선택</button>
+    </form>
 </div>
 <div id="workspace-group-list">
     {% for workspace in workSpaceGroups %}
@@ -117,6 +122,13 @@
         div.appendChild(chat);
         document.querySelector('#chat-list').appendChild(div);
     });
+    // 임시 이벤트 소켓, data에 workspace가 들어있음
+    socket.on('changeSnapshot', function(data){
+        const div = document.createElement('div');
+        div.textContent = data.snapshot;
+        document.querySelector('#my-workspace').appendChild(div);
+    })
+
     document.querySelector('#chat-form').addEventListener('submit', function (e) {
         e.preventDefault();
         if (e.target.chat.value) {
@@ -131,19 +143,22 @@
                 });
         }
     });
-    // document.querySelector('#workspace-change-form').addEventListener('submit', function (e) {
-    //     e.preventDefault();
-    //     if (e.target.subWorkspace.value) {
-    //         axios.post('/workspace/{{workSpaceGroups[0].hostWorkSpaceId}}/change', {
-    //             changeWorkSpaceId: this.subWorkspace.value,
-    //         })
-    //             .then(() => {
-    //             })
-    //             .catch((err) => {
-    //                 console.error(err);
-    //             });
-    //     }
-    // });
+
+    // 임시 이벤트 리스너 여기 수정하면 됨
+    document.querySelector('#change-snapshot').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (e.target.tEvent.value) {
+            axios.post('/workspace/{{workSpaceGroups[0].hostWorkSpaceId}}/change/snapshot', {
+                snapshot: this.tEvent.value,
+            })
+                .then(() => {
+                    e.target.tEvent.value = '';
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
+    });
 
 </script>
 

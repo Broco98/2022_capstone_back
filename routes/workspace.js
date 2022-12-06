@@ -130,4 +130,28 @@ router.post('/:hostWorkSpaceId/chat', async (req, res, next) => {
     }
 });
 
+router.post('/:hostWorkSpaceId/change/snapshot', async (req, res, next) => {
+    try{
+        await WorkSpace.update({
+            snapshot: req.body.snapshot,
+        },{
+            where:{
+                id: req.session.subWorkSpaceId,
+            }
+        });
+        const changeWorkSpace = await WorkSpace.findOne({
+            where:{
+                id: req.session.subWorkSpaceId,
+            }
+        })
+
+        console.log(req.session.subWorkSpaceId,'의 snapshot이 변경됐습니다');
+        req.app.get('io').to(req.params.hostWorkSpaceId).emit('changeSnapshot', changeWorkSpace);
+
+    } catch(error){
+        console.error(error);
+        next(error);
+    }
+});
+
 module.exports = router;
