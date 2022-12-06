@@ -82,9 +82,24 @@ router.get('/:hostWorkSpaceId', isLoggedIn, async(req, res, next) => {
                 hostWorkSpaceId: req.params.hostWorkSpaceId
             }
         });
-        req.app.get('io').to(req.params.hostWorkSpaceId).emit('join',{
-            chat: `${req.user.nick}님 입장`,
-        });
+
+        if(exWorkSpace){
+            req.app.get('io').to(req.params.hostWorkSpaceId).emit('join_ex',{
+                chat: `${req.user.nick}님 입장`,
+            });
+        }
+        else{
+            const newSubWorkSpace = await WorkSpaceGroup.findOne({
+                where:{
+                    hostWorkSpaceId: req.params.hostWorkSpaceId,
+                    subUserId: req.user.id
+                }
+            });
+            req.app.get('io').to(req.params.hostWorkSpaceId).emit('join_new',{
+                chat: `${req.user.nick}님 입장`,
+                workspace: newSubWorkSpace,
+            });
+        }
         res.render('workspace', {workSpaceGroups, chats});
     } catch(error){
         console.error(error);
@@ -107,13 +122,12 @@ router.post('/:hostWorkSpaceId/chat', async (req, res, next) => {
             hostWorkSpaceId: req.params.hostWorkSpaceId,
             chat: req.body.chat,
         });
-        req.app.get('io').of('/workspace').to(req.params.hostWorkSpaceId).emit('chat', chat);
+        req.app.get('io').to(req.params.hostWorkSpaceId).emit('chat', chat);
         res.send('ok');
     } catch (error) {
         console.error(error);
         next(error);
     }
 });
-
 
 module.exports = router;
